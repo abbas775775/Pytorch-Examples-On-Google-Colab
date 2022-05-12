@@ -14,7 +14,7 @@ from torchvision.models.detection import fasterrcnn_resnet50_fpn
 from torchvision.transforms.functional import convert_image_dtype
 
 
-import torch
+
 
 # Model
 model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
