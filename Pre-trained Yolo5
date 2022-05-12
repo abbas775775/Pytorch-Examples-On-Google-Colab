@@ -1,0 +1,37 @@
+import cv2
+import numpy as np
+from google.colab.patches import cv2_imshow
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
+from PIL import Image
+import torch
+import torchvision
+import torchvision.transforms.functional as F
+from torchvision.utils import make_grid
+from torchvision.io import read_image
+from torchvision.utils import draw_bounding_boxes
+from torchvision.models.detection import fasterrcnn_resnet50_fpn
+from torchvision.transforms.functional import convert_image_dtype
+
+
+import torch
+
+# Model
+model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
+
+imgs = "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/2009-3-14_ManUtd_vs_LFC_Ronaldo_Tackling.JPG/1024px-2009-3-14_ManUtd_vs_LFC_Ronaldo_Tackling.JPG"  # batch of images
+img_path=cv2.imread("/content/1024px-2009-3-14_ManUtd_vs_LFC_Ronaldo_Tackling.JPG")
+# Inference
+results = model(imgs, size=640)  # includes NMS
+
+class_csv=results.pandas().xyxy[0]  
+threshold=.8
+boxes=[[(int(i[0]), int(i[1])), (int(i[2]), int(i[3]))] for ii,i in enumerate(results.xyxy[0][0:len(results.xyxy[0])].numpy()) if class_csv['confidence'][ii]>threshold]
+
+print(f'boxes={boxes}')  
+img=img_path
+for i in range(len(boxes)):
+    cv2.rectangle(img, boxes[i][0], boxes[i][1],color=(0, 255, 0), thickness=2)
+    cv2.putText(img,str(class_csv['name'][i]), boxes[i][0], cv2.FONT_HERSHEY_SIMPLEX,2,(0,0,255),2)
+cv2_imshow(img)
+results.pandas().xyxy[0] #it prints(csv table)
